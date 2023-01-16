@@ -31,6 +31,11 @@
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.5.4",
     "typeorm": "^0.3.11"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.7",
+    "utf-8-validate": "^5.0.10"
   }
 }

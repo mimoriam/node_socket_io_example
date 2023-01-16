@@ -15,11 +15,16 @@
 
 // npm i class-transformer class-validator cors
 
+//* Socket IO starts here:
+// npm i socket.io
+// npm i --save-optional bufferutil utf-8-validate
+
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: __dirname + "/config/config.env" });
 
 import express, { Express } from "express";
+import * as http from "http";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -27,6 +32,9 @@ import { DataSource } from "typeorm";
 import { User } from "./models/User";
 
 import { errorHandler } from "./middleware/errorHandler";
+
+// Socket server files:
+import {registerSocketServer} from "./socketServer";
 
 import "reflect-metadata";
 
@@ -76,7 +84,10 @@ app.use("/api/v1/auth", authRouter);
 // Use Error Handler:
 app.use(errorHandler);
 
-// Listening on a specific port:
-app.listen(PORT || 3000, () => {
+const server = http.createServer(app);
+registerSocketServer(server); // Initialize a socket server
+
+// Refactored from app.listen to server.listen
+server.listen(PORT || 3000, () => {
   console.log(`Listening on port: ${PORT}`);
 });
