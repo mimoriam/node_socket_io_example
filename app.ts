@@ -13,15 +13,18 @@
  * npm i -D @types/bcryptjs @types/jsonwebtoken @types/cookie-parser
  ***/
 
+// npm i class-transformer class-validator cors
+
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: __dirname + "/config/config.env" });
 
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import path from "path";
+import cors from "cors";
 
 import { DataSource } from "typeorm";
+import { User } from "./models/User";
 
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -34,7 +37,7 @@ export const AppDataSource = new DataSource({
   username: process.env.PG_USER,
   password: process.env.PG_PASS,
   database: process.env.DATABASE,
-  entities: [],
+  entities: [User],
   subscribers: [],
   logging: false,
   // Turn this to false in production:
@@ -60,6 +63,12 @@ const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: ["http://localhost:8000"],
+    credentials: true,
+  })
+);
 
 // Mount Routers:
 app.use("/api/v1/auth", authRouter);
