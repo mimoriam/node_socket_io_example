@@ -7,9 +7,9 @@ export class FriendInvitation {
   id: string;
 
   @ManyToOne(() => User, (user) => user.friendInvitations)
-  @JoinColumn({ name: "senderId" })
+  @JoinColumn({ name: "sender" })
   sender: User;
 
   @Column()
-  receiver: number;
+  receiver: string;
 }

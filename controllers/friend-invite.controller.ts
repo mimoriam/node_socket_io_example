@@ -39,12 +39,12 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   }
 
   // Check if invitation has been already sent:
-  const invitationAlreadyReceived = await friendInviteRepo.findOne({
-    where: {
-      sender: id,
-      receiver: +targetUser.id,
-    },
-  });
+  const invitationAlreadyReceived = await friendInviteRepo
+    .createQueryBuilder("s")
+    .select()
+    .where("s.sender = :aId", { aId: id })
+    .andWhere("s.receiver = :targetId", { targetId: targetUser.id })
+    .getOne();
 
   if (invitationAlreadyReceived) {
     return next(new ErrorResponse("Invitation has been already sent", 409));
@@ -64,7 +64,7 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   // Create new invitation in the DB:
   const newInvitation = new FriendInvitation();
   newInvitation.sender = id;
-  newInvitation.receiver = +targetUser.id;
+  newInvitation.receiver = targetUser.id;
 
   await friendInviteRepo.save(newInvitation);
 
