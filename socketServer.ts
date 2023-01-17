@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { verifyTokenSocket } from "./middleware/authHandlerSocket";
 import { newConnectionHandler } from "./socket_handlers/newConnectionHandler";
+import { disconnectHandler } from "./socket_handlers/disconnectHandler";
 
 const registerSocketServer = (server) => {
   const io = new Server(server, {
@@ -19,6 +20,10 @@ const registerSocketServer = (server) => {
 
     // Make a new connection on a new User:
     newConnectionHandler(socket, io);
+
+    socket.on("disconnect", () => {
+      disconnectHandler(socket);
+    });
   });
 };
 

@@ -13,7 +13,7 @@ const verifyTokenSocket = (socket, next) => {
 
   // On the Postman side:
   // ws://localhost:3000/socket.io/?EIO=4&transport=websocket
-  // Message: 40{"token": "jwtToken"}
+  // Message: 40{"token": "{{TOKEN}}"}
   console.log(token);
 
   try {
