@@ -30,11 +30,12 @@ import cors from "cors";
 
 import { DataSource } from "typeorm";
 import { User } from "./models/User";
+import { FriendInvitation } from "./models/FriendInvitation";
 
 import { errorHandler } from "./middleware/errorHandler";
 
 // Socket server files:
-import {registerSocketServer} from "./socketServer";
+import { registerSocketServer } from "./socketServer";
 
 import "reflect-metadata";
 
@@ -45,7 +46,7 @@ export const AppDataSource = new DataSource({
   username: process.env.PG_USER,
   password: process.env.PG_PASS,
   database: process.env.DATABASE,
-  entities: [User],
+  entities: [User, FriendInvitation],
   subscribers: [],
   logging: false,
   // Turn this to false in production:
@@ -54,6 +55,7 @@ export const AppDataSource = new DataSource({
 
 // Route files:
 import { router as authRouter } from "./routes/auth.routes";
+import { router as friendInviteRouter } from "./routes/friend-invite.routes";
 
 // Initialize DB:
 AppDataSource.initialize()
@@ -80,6 +82,7 @@ app.use(
 
 // Mount Routers:
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/friend-invite", friendInviteRouter);
 
 // Use Error Handler:
 app.use(errorHandler);

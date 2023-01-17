@@ -1,7 +1,14 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { IsEmail, IsString, Length } from "class-validator";
 import bcrypt from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { FriendInvitation } from "./FriendInvitation";
 
 @Entity({ name: "users" })
 export class User {
@@ -20,6 +27,12 @@ export class User {
   @Column()
   @Length(4)
   password: string;
+
+  @OneToMany(() => FriendInvitation, (friend) => friend.sender, {
+    cascade: true,
+    eager: true,
+  })
+  friendInvitations: FriendInvitation[];
 
   @BeforeInsert()
   async hashPassword() {
