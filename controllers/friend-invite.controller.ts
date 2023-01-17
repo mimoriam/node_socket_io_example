@@ -51,7 +51,7 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   }
 
   // Check if the user we would like to invite is already our friend:
-  const userAlreadyFriends = targetUser.friendInvitations.find(
+  const userAlreadyFriends = targetUser.friendInvitationSent.find(
     (friendId) => friendId.toString() === id.toString()
   );
 
@@ -64,7 +64,9 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   // Create new invitation in the DB:
   const newInvitation = new FriendInvitation();
   newInvitation.sender = id;
-  newInvitation.receiver = targetUser.id;
+  newInvitation.receiver = targetUser;
+  newInvitation.senderId = id;
+  newInvitation.receiverId = targetUser.id;
 
   await friendInviteRepo.save(newInvitation);
 

@@ -32,7 +32,13 @@ export class User {
     cascade: true,
     eager: true,
   })
-  friendInvitations: FriendInvitation[];
+  friendInvitationSent: FriendInvitation[];
+
+  @OneToMany(() => FriendInvitation, (friend) => friend.receiver, {
+    cascade: true,
+    eager: true,
+  })
+  friendInvitationReceived: FriendInvitation[];
 
   @BeforeInsert()
   async hashPassword() {
