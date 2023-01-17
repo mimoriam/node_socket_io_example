@@ -2,13 +2,24 @@ import { Server } from "socket.io";
 import { verifyTokenSocket } from "./middleware/authHandlerSocket";
 import { newConnectionHandler } from "./socket_handlers/newConnectionHandler";
 import { disconnectHandler } from "./socket_handlers/disconnectHandler";
+import { setSocketServerInstance } from "./serverStore";
+import { instrument } from "@socket.io/admin-ui";
 
 const registerSocketServer = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: 'https://admin.socket.io',
       methods: ["GET", "POST"],
+      credentials: true
     },
+  });
+
+  // Using manually created socket instance here:
+  setSocketServerInstance(io);
+
+  instrument(io, {
+    auth: false,
+    mode: "development",
   });
 
   io.use((socket, next) => {

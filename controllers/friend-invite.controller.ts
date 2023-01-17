@@ -3,6 +3,7 @@ import { AppDataSource } from "../app";
 import { ErrorResponse } from "../utils/errorResponse";
 import { User } from "../models/User";
 import { FriendInvitation } from "../models/FriendInvitation";
+import { updateFriendsPendingInvitations } from "../socket_handlers/updates/friends";
 
 // @desc      Invite friend
 // @route     POST /api/v1/friend-invite/invite
@@ -69,6 +70,9 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   newInvitation.receiverId = targetUser.id;
 
   await friendInviteRepo.save(newInvitation);
+
+  // if invitation has been successfully created we would like to update friends invitations if other user is online
+  updateFriendsPendingInvitations(targetUser.id.toString());
 
   return res.status(201).json({
     message: "Invitation has been sent successfully!",

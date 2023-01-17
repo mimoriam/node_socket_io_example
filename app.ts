@@ -19,6 +19,9 @@
 // npm i socket.io
 // npm i --save-optional bufferutil utf-8-validate
 
+// Testing events with:
+// npm i @socket.io/admin-ui
+
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: __dirname + "/config/config.env" });
@@ -75,8 +78,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:8000"],
-    credentials: true,
+    origin: ["*"],
+    // credentials: true,
   })
 );
 
