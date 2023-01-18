@@ -3,7 +3,11 @@ import { AppDataSource } from "../app";
 import { ErrorResponse } from "../utils/errorResponse";
 import { User } from "../models/User";
 import { FriendInvitation } from "../models/FriendInvitation";
-import { updateFriendsPendingInvitations } from "../socket_handlers/updates/friends";
+import {
+  updateFriends,
+  updateFriendsPendingInvitations,
+} from "../socket_handlers/updates/friends";
+import { log } from "util";
 
 // @desc      Invite friend
 // @route     POST /api/v1/friend-invite/invite
@@ -52,14 +56,24 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
   }
 
   // Check if the user we would like to invite is already our friend:
-  const userAlreadyFriends = targetUser.friendInvitationSent.find(
-    (friendId) => friendId.toString() === id.toString()
-  );
-
-  if (userAlreadyFriends) {
-    return next(
-      new ErrorResponse("Friend already added. Please check friends list", 409)
+  // UPDATED here:
+  // If new account has no users:
+  if (targetUser.friends === null) {
+    // Do nothing
+  } else {
+    const userAlreadyFriends = targetUser.friends.find(
+      // @ts-ignore
+      (friendId) => friendId.id.toString() === id.toString()
     );
+
+    if (userAlreadyFriends) {
+      return next(
+        new ErrorResponse(
+          "Friend already added. Please check friends list",
+          409
+        )
+      );
+    }
   }
 
   // Create new invitation in the DB:
@@ -113,19 +127,33 @@ const acceptFriend = asyncHandler(async (req, res, next) => {
     });
 
     // Update friends of both users if accepted:
-    senderUser.friends = [
-      {
+    if (senderUser.friends === null) {
+      senderUser.friends = [
+        {
+          id: receiverUser.id,
+          name: receiverUser.name,
+        },
+      ];
+    } else {
+      senderUser.friends.push({
         id: receiverUser.id,
         name: receiverUser.name,
-      },
-    ];
+      });
+    }
 
-    receiverUser.friends = [
-      {
+    if (receiverUser.friends === null) {
+      receiverUser.friends = [
+        {
+          id: senderUser.id,
+          name: senderUser.name,
+        },
+      ];
+    } else {
+      receiverUser.friends.push({
         id: senderUser.id,
         name: senderUser.name,
-      },
-    ];
+      });
+    }
 
     await userRepo.save(senderUser);
     await userRepo.save(receiverUser);
@@ -134,6 +162,8 @@ const acceptFriend = asyncHandler(async (req, res, next) => {
     await friendInviteRepo.delete(id);
 
     // TODO: Update list of the friends if the users are online
+    updateFriends(senderId.toString());
+    updateFriends(receiverId.toString());
 
     // Update list of friends pending invitations
     updateFriendsPendingInvitations(receiverId.toString());

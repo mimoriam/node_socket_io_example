@@ -31,4 +31,37 @@ const updateFriendsPendingInvitations = async (userId) => {
   }
 };
 
-export { updateFriendsPendingInvitations };
+const updateFriends = async (userId) => {
+  try {
+    const userRepo = AppDataSource.getRepository(User);
+    const receiverList = getActiveConnections(userId);
+
+    if (receiverList.length > 0) {
+      const user = await userRepo.findOne({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          friends: true,
+        },
+      });
+
+      if (user) {
+        const friendsList = user.friends;
+
+        const io = getSocketServerInstance();
+
+        receiverList.forEach((receiverSocketId) => {
+          io.to(receiverSocketId).emit("friends-list", {
+            friends: friendsList ? friendsList : [],
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export { updateFriendsPendingInvitations, updateFriends };

@@ -29,7 +29,7 @@ export class User {
   password: string;
 
   @Column("jsonb", { nullable: true })
-  friends: object[];
+  friends?: object[];
 
   @OneToMany(() => FriendInvitation, (friend) => friend.sender, {
     cascade: true,

@@ -1,5 +1,8 @@
 import { addNewConnectedUser } from "../serverStore";
-import { updateFriendsPendingInvitations } from "./updates/friends";
+import {
+  updateFriends,
+  updateFriendsPendingInvitations,
+} from "./updates/friends";
 
 const newConnectionHandler = async (socket, io) => {
   const userDetails = socket.user;
@@ -12,6 +15,9 @@ const newConnectionHandler = async (socket, io) => {
 
   // Update pending friends invitations list
   updateFriendsPendingInvitations(userDetails.id);
+
+  // Update friends list:
+  updateFriends(userDetails.id);
 };
 
 export { newConnectionHandler };
