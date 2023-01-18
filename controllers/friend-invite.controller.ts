@@ -192,8 +192,6 @@ const rejectFriend = asyncHandler(async (req, res, next) => {
       },
     });
 
-    console.log(invitationExists);
-
     if (invitationExists) {
       await friendInviteRepo.delete(id);
     } else {
