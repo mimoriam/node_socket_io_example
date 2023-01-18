@@ -87,6 +87,35 @@ const acceptFriend = asyncHandler(async (req, res, next) => {});
 // @desc      Reject friend request
 // @route     POST /api/v1/friend-invite/reject
 // @access    Private
-const rejectFriend = asyncHandler(async (req, res, next) => {});
+const rejectFriend = asyncHandler(async (req, res, next) => {
+  try {
+    const friendInviteRepo = AppDataSource.getRepository(FriendInvitation);
+    const { id } = req.body;
+    const { id: userId } = req.user;
+
+    const invitationExists = await friendInviteRepo.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    console.log(invitationExists);
+
+    if (invitationExists) {
+      await friendInviteRepo.delete(id);
+    } else {
+      return next(new ErrorResponse("Friend doesn't exist", 404));
+    }
+
+    updateFriendsPendingInvitations(userId);
+
+    return res.status(200).json({
+      message: "Invitation successfully rejected",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Something went wrong please try again");
+  }
+});
 
 export { inviteFriend, acceptFriend, rejectFriend };
