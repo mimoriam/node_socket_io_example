@@ -28,6 +28,9 @@ export class User {
   @Length(4)
   password: string;
 
+  @Column("jsonb", { nullable: true })
+  friends: object[];
+
   @OneToMany(() => FriendInvitation, (friend) => friend.sender, {
     cascade: true,
     eager: true,

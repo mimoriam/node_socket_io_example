@@ -82,7 +82,70 @@ const inviteFriend = asyncHandler(async (req, res, next) => {
 // @desc      Accept friend request
 // @route     POST /api/v1/friend-invite/accept
 // @access    Private
-const acceptFriend = asyncHandler(async (req, res, next) => {});
+const acceptFriend = asyncHandler(async (req, res, next) => {
+  try {
+    const userRepo = AppDataSource.getRepository(User);
+    const friendInviteRepo = AppDataSource.getRepository(FriendInvitation);
+    const { id } = req.body;
+
+    const invitation = await friendInviteRepo.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!invitation) {
+      return next(new ErrorResponse("Error occured. Please try again", 401));
+    }
+
+    const { senderId, receiverId } = invitation;
+
+    const senderUser = await userRepo.findOne({
+      where: {
+        id: senderId,
+      },
+    });
+
+    const receiverUser = await userRepo.findOne({
+      where: {
+        id: receiverId,
+      },
+    });
+
+    // Update friends of both users if accepted:
+    senderUser.friends = [
+      {
+        id: receiverUser.id,
+        name: receiverUser.name,
+      },
+    ];
+
+    receiverUser.friends = [
+      {
+        id: senderUser.id,
+        name: senderUser.name,
+      },
+    ];
+
+    await userRepo.save(senderUser);
+    await userRepo.save(receiverUser);
+
+    // Delete invitation:
+    await friendInviteRepo.delete(id);
+
+    // TODO: Update list of the friends if the users are online
+
+    // Update list of friends pending invitations
+    updateFriendsPendingInvitations(receiverId.toString());
+
+    return res.status(200).json({
+      message: "Friend successfully added!",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Something went wrong please try again");
+  }
+});
 
 // @desc      Reject friend request
 // @route     POST /api/v1/friend-invite/reject
