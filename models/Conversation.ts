@@ -21,7 +21,11 @@ export class Conversation {
   @JoinColumn({ name: "participantsId" })
   participants: User[];
 
+  @Column("simple-array", { nullable: true })
+  messagesId: string[];
+
   @ManyToMany(() => Message, (messages) => messages.conversations)
   @JoinTable()
+  @JoinColumn({ name: "messagesId" })
   messages: Message[];
 }

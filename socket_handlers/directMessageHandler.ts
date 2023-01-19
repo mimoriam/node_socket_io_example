@@ -2,6 +2,7 @@ import { AppDataSource } from "../app";
 import { Message } from "../models/Message";
 import { Conversation } from "../models/Conversation";
 import { Like } from "typeorm";
+import { updateChatHistory } from "./updates/chat";
 
 const directMessageHandler = async (socket, data) => {
   // Message event should be of type:
@@ -28,6 +29,9 @@ const directMessageHandler = async (socket, data) => {
 
     // Find if conversation exists between two users - if not, create:
     const conversation = await conversationRepo.findOne({
+      relations: {
+        messages: true,
+      },
       where: {
         // participantsId: Like(`%${id},${receiverUserId}%`),
         participantsId: `${id},${receiverUserId}`,
@@ -37,8 +41,18 @@ const directMessageHandler = async (socket, data) => {
     console.log(conversation);
 
     if (conversation) {
-      conversation.messages.push(message);
+      if (conversation.messages === null) {
+        conversation.messages = [message];
+        conversation.messagesId = [message.id];
+      } else {
+        conversation.messages.push(message);
+      }
+      // conversation.messages = [...conversation.messages, message];
+      // conversation.messagesId = [...conversation.messagesId, message.id];
       await conversationRepo.save(conversation);
+
+      // Perform an update to sender and receiver if is online:
+      updateChatHistory(conversation.id.toString());
     } else {
       const newConversation = await conversationRepo.create({
         messages: [message],
@@ -47,6 +61,8 @@ const directMessageHandler = async (socket, data) => {
       });
 
       await conversationRepo.save(newConversation);
+
+      updateChatHistory(newConversation.id.toString());
     }
   } catch (err) {
     console.log(err);

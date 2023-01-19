@@ -5,6 +5,7 @@ import { disconnectHandler } from "./socket_handlers/disconnectHandler";
 import { getOnlineUsers, setSocketServerInstance } from "./serverStore";
 import { instrument } from "@socket.io/admin-ui";
 import { directMessageHandler } from "./socket_handlers/directMessageHandler";
+import { directChatHistoryHandler } from "./socket_handlers/directChatHistoryHandler";
 
 const registerSocketServer = (server) => {
   const io = new Server(server, {
@@ -43,7 +44,10 @@ const registerSocketServer = (server) => {
     socket.on("direct-message", (data) => {
       directMessageHandler(socket, data);
     });
-    socket.on("direct-chat-history", (data) => {});
+
+    socket.on("direct-chat-history", (data) => {
+      directChatHistoryHandler(socket, data);
+    });
 
     socket.on("disconnect", () => {
       disconnectHandler(socket);
