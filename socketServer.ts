@@ -4,6 +4,7 @@ import { newConnectionHandler } from "./socket_handlers/newConnectionHandler";
 import { disconnectHandler } from "./socket_handlers/disconnectHandler";
 import { getOnlineUsers, setSocketServerInstance } from "./serverStore";
 import { instrument } from "@socket.io/admin-ui";
+import { directMessageHandler } from "./socket_handlers/directMessageHandler";
 
 const registerSocketServer = (server) => {
   const io = new Server(server, {
@@ -37,6 +38,12 @@ const registerSocketServer = (server) => {
     // Make a new connection on a new User:
     newConnectionHandler(socket, io);
     emitOnlineUsers();
+
+    // This part handles the chatting:
+    socket.on("direct-message", (data) => {
+      directMessageHandler(socket, data);
+    });
+    socket.on("direct-chat-history", (data) => {});
 
     socket.on("disconnect", () => {
       disconnectHandler(socket);

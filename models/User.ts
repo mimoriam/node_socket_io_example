@@ -2,6 +2,8 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -9,6 +11,8 @@ import { IsEmail, IsString, Length } from "class-validator";
 import bcrypt from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { FriendInvitation } from "./FriendInvitation";
+import { Conversation } from "./Conversation";
+import {Message} from "./Message";
 
 @Entity({ name: "users" })
 export class User {
@@ -42,6 +46,13 @@ export class User {
     eager: true,
   })
   friendInvitationReceived: FriendInvitation[];
+
+  @ManyToMany(() => Conversation, (conversations) => conversations.participants)
+  @JoinTable()
+  conversations: Conversation[];
+
+  @OneToMany(() => Message, (messageAuthors) => messageAuthors.author)
+  messageAuthor: Message[]
 
   @BeforeInsert()
   async hashPassword() {

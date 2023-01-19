@@ -34,6 +34,8 @@ import cors from "cors";
 import { DataSource } from "typeorm";
 import { User } from "./models/User";
 import { FriendInvitation } from "./models/FriendInvitation";
+import { Conversation } from "./models/Conversation";
+import { Message } from "./models/Message";
 
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -49,7 +51,7 @@ export const AppDataSource = new DataSource({
   username: process.env.PG_USER,
   password: process.env.PG_PASS,
   database: process.env.DATABASE,
-  entities: [User, FriendInvitation],
+  entities: [User, FriendInvitation, Conversation, Message],
   subscribers: [],
   logging: false,
   // Turn this to false in production:
